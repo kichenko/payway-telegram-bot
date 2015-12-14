@@ -42,6 +42,7 @@
     <bean id="app.RestTemplate" class="org.springframework.web.client.RestTemplate">
         <property name="messageConverters">
             <list>
+                <bean class="org.springframework.http.converter.FormHttpMessageConverter"/>
                 <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
                     <property name="objectMapper" ref="objectMapper"/>
                 </bean>

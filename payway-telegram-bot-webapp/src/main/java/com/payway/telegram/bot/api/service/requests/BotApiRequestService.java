@@ -20,8 +20,10 @@ import com.payway.telegram.bot.api.model.requests.SendMessage;
 import com.payway.telegram.bot.api.model.requests.SendPhoto;
 import com.payway.telegram.bot.api.model.requests.SendVideo;
 import com.payway.telegram.bot.api.model.requests.SendVoice;
+import com.payway.telegram.bot.api.model.requests.SetWebhook;
 import com.payway.telegram.bot.api.service.requests.exception.BotApiServiceException;
 import java.util.List;
+import org.springframework.core.io.Resource;
 
 /**
  * BotApiRequestService
@@ -37,15 +39,15 @@ public interface BotApiRequestService {
 
     Message forwardMessage(final ForwardMessage forwardMessage) throws BotApiServiceException;
 
-    Message sendPhoto(final SendPhoto sendPhoto) throws BotApiServiceException;
+    Message sendPhoto(final SendPhoto sendPhoto, final Resource resource) throws BotApiServiceException;
 
-    Message sendAudio(final SendAudio sendAudio) throws BotApiServiceException;
+    Message sendAudio(final SendAudio sendAudio, final Resource resource) throws BotApiServiceException;
 
-    Message sendDocument(final SendDocument sendDocument) throws BotApiServiceException;
+    Message sendDocument(final SendDocument sendDocument, final Resource resource) throws BotApiServiceException;
 
-    Message sendVideo(final SendVideo sendVideo) throws BotApiServiceException;
+    Message sendVideo(final SendVideo sendVideo, final Resource resource) throws BotApiServiceException;
 
-    Message sendVoice(final SendVoice sendVoice) throws BotApiServiceException;
+    Message sendVoice(final SendVoice sendVoice, final Resource resource) throws BotApiServiceException;
 
     Message sendLocation(final SendLocation sendLocation) throws BotApiServiceException;
 
@@ -57,5 +59,5 @@ public interface BotApiRequestService {
 
     List<Update> getUpdates(final GetUpdates getUpdates) throws BotApiServiceException;
 
-    void setWebhook(final String url, final File file) throws BotApiServiceException;
+    Boolean setWebhook(final SetWebhook setWebhook, final Resource certificate) throws BotApiServiceException;
 }

@@ -20,10 +20,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SendVideo extends AbstractApiRequestObject {
-
-    @JsonProperty("chat_id")
-    private Integer chatId;
+public class SendVideo extends AbstractSendContent {
 
     @JsonProperty("video")
     private String video;
@@ -34,9 +31,11 @@ public class SendVideo extends AbstractApiRequestObject {
     @JsonProperty("caption")
     private String caption;
 
-    @JsonProperty("reply_to_message_id")
-    private Integer replayToMessageId;
+    public SendVideo(Integer chatId, Integer replayToMessageId, String caption, String video, Integer duration, ReplyKeyboard replayMarkup) {
+        super(chatId, replayToMessageId, replayMarkup, SendContentType.Video);
+        this.video = video;
+        this.duration = duration;
+        this.caption = caption;
+    }
 
-    @JsonProperty("reply_markup")
-    private ReplyKeyboard replayMarkup;
 }

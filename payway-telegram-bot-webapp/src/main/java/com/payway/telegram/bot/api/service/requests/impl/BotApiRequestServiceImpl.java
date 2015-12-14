@@ -13,6 +13,7 @@ import com.payway.telegram.bot.api.model.Update;
 import com.payway.telegram.bot.api.model.User;
 import com.payway.telegram.bot.api.model.UserProfilePhotos;
 import com.payway.telegram.bot.api.model.requests.AbstractApiRequestObject;
+import com.payway.telegram.bot.api.model.requests.AbstractSendContent;
 import com.payway.telegram.bot.api.model.requests.ForwardMessage;
 import com.payway.telegram.bot.api.model.requests.GetFile;
 import com.payway.telegram.bot.api.model.requests.GetMe;
@@ -26,13 +27,14 @@ import com.payway.telegram.bot.api.model.requests.SendMessage;
 import com.payway.telegram.bot.api.model.requests.SendPhoto;
 import com.payway.telegram.bot.api.model.requests.SendVideo;
 import com.payway.telegram.bot.api.model.requests.SendVoice;
+import com.payway.telegram.bot.api.model.requests.SetWebhook;
 import com.payway.telegram.bot.api.service.requests.BotApiRequestService;
 import com.payway.telegram.bot.api.service.requests.exception.BotApiServiceException;
 import java.util.List;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -145,6 +147,28 @@ public class BotApiRequestServiceImpl implements BotApiRequestService {
         return dst;
     }
 
+    private Message sendContent(final AbstractSendContent content, final Resource resource) throws BotApiServiceException {
+
+        final HttpHeaders headers = new HttpHeaders();
+        final MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        parts.add(content.getKind().getName(), resource);
+        parts.add("chat_id", Integer.toString(content.getChatId()));
+
+        final HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(parts, headers);
+
+        return parse(
+                getRestTemplate().exchange(
+                        getMethodApiUrl(content.getClass()),
+                        HttpMethod.POST,
+                        requestEntity,
+                        ApiResponse.class
+                ).getBody(),
+                Message.class
+        );
+    }
+
     @Override
     public User getMe() throws BotApiServiceException {
         return sendRequest(getMethodApiUrl(GetMe.class), null, User.class);
@@ -190,48 +214,52 @@ public class BotApiRequestServiceImpl implements BotApiRequestService {
     }
 
     @Override
-    public void setWebhook(String url, File file) throws BotApiServiceException {
-        //
-    }
-
-    @Override
-    public Message sendPhoto(SendPhoto sendPhoto, ) throws BotApiServiceException {
-        
-        //ByteArrayResource
-
-        final MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
-        parts.add("document", new ByteArrayResource(null));
+    public Boolean setWebhook(final SetWebhook setWebhook, final Resource certificate) throws BotApiServiceException {
 
         final HttpHeaders headers = new HttpHeaders();
+        final MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        parts.add("url", setWebhook.getUrl());
+        if (certificate != null) {
+            parts.add("certificate", certificate);
+        }
 
         final HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(parts, headers);
 
-        return restTemplate.exchange(
-                getMethodApiUrl(GetUpdates.class),
-                HttpMethod.POST,
-                requestEntity,
-                Message.class
-        ).getBody();
+        return parse(
+                getRestTemplate().exchange(
+                        getMethodApiUrl(setWebhook.getClass()),
+                        HttpMethod.POST,
+                        requestEntity,
+                        ApiResponse.class
+                ).getBody(),
+                Boolean.class
+        );
     }
 
     @Override
-    public Message sendAudio(SendAudio sendAudio) throws BotApiServiceException {
-        return null;
+    public Message sendPhoto(final SendPhoto sendPhoto, final Resource resource) throws BotApiServiceException {
+        return sendContent(sendPhoto, resource);
     }
 
     @Override
-    public Message sendDocument(SendDocument sendDocument) throws BotApiServiceException {
-        return null;
+    public Message sendAudio(SendAudio sendAudio, final Resource resource) throws BotApiServiceException {
+        return sendContent(sendAudio, resource);
     }
 
     @Override
-    public Message sendVideo(SendVideo sendVideo) throws BotApiServiceException {
-        return null;
+    public Message sendDocument(SendDocument sendDocument, final Resource resource) throws BotApiServiceException {
+        return sendContent(sendDocument, resource);
     }
 
     @Override
-    public Message sendVoice(SendVoice sendVoice) throws BotApiServiceException {
-        return null;
+    public Message sendVideo(SendVideo sendVideo, final Resource resource) throws BotApiServiceException {
+        return sendContent(sendVideo, resource);
+    }
+
+    @Override
+    public Message sendVoice(SendVoice sendVoice, final Resource resource) throws BotApiServiceException {
+        return sendContent(sendVoice, resource);
     }
 }

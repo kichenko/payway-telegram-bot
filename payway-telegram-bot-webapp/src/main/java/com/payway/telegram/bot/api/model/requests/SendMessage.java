@@ -20,10 +20,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SendMessage extends AbstractApiRequestObject {
-
-    @JsonProperty("chat_id")
-    private Integer chatId;
+public class SendMessage extends AbstractSendContent {
 
     @JsonProperty("text")
     private String text;
@@ -34,9 +31,13 @@ public class SendMessage extends AbstractApiRequestObject {
     @JsonProperty("disable_web_page_preview")
     private Boolean disableWebPagePreview;
 
-    @JsonProperty("reply_to_message_id")
-    private Integer replayToMessageId;
+    public SendMessage(Integer chatId, Integer replayToMessageId, String text, String parseMode, Boolean disableWebPagePreview, ReplyKeyboard replayMarkup) {
+        super(chatId, replayToMessageId, replayMarkup, SendContentType.Message);
+        this.text = text;
+        this.parseMode = parseMode;
+        this.disableWebPagePreview = disableWebPagePreview;
+    }
+    
+    
 
-    @JsonProperty("reply_markup")
-    private ReplyKeyboard replayMarkup;
 }

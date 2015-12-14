@@ -5,12 +5,11 @@ package com.payway.telegram.bot.web.controller;
 
 import com.payway.telegram.bot.api.model.File;
 import com.payway.telegram.bot.api.model.Update;
-import com.payway.telegram.bot.api.model.requests.GetUpdates;
 import com.payway.telegram.bot.api.model.requests.SendPhoto;
+import com.payway.telegram.bot.api.model.requests.SetWebhook;
 import com.payway.telegram.bot.api.service.requests.BotApiRequestService;
 import com.payway.telegram.bot.web.task.handler.BotWebhookTaskHandler;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import javax.servlet.http.HttpServletResponse;
 import lombok.Getter;
@@ -18,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -50,6 +50,7 @@ public class TelegramBotController extends AbstractController {
     @Value("${app.bot.api.token}")
     private String botApiToken;
 
+    @Getter
     @Autowired
     private BotApiRequestService service;
 
@@ -60,10 +61,16 @@ public class TelegramBotController extends AbstractController {
     public void ping(final HttpServletResponse response) throws Exception {
 
         try {
-            
-            service.sendPhoto(new SendPhoto(154969762, "154969762", "Hello", null, null));
+            service.setWebhook(new SetWebhook(
+                    "https://kichenko.jelastic.regruhosting.ru:443/telegram-bot/151500598:AAHIaCw9EcsPuA0wEacxTX9SgLBuKj831Tc/webhook"),
+                    null
+            );
 
-            final List<Update> update = service.getUpdates(new GetUpdates(0, 10, null));
+            //final List<Update> update = service.getUpdates(new GetUpdates(0, 10, null));
+            //final Resource resource = getApplicationContext().getResource("classpath:com/payway/images/photo.jpg");
+            //service.sendPhoto(new SendPhoto(154969762, null, "154969762", "Hello", null), resource);
+            //service.setWebhook(new SetWebhook(""), null);
+            //final List<Update> update = service.getUpdates(new GetUpdates(0, 10, null));
 
             /*
              restTemplate.postForObject(
@@ -117,12 +124,15 @@ public class TelegramBotController extends AbstractController {
 
     @ResponseStatus(value = HttpStatus.OK)
     @RequestMapping(value = "{token}/webhook", method = RequestMethod.POST, consumes = "application/json")
-    public void onWebhook(@PathVariable("token") final String token, final Update update) {
+    public void onWebhook(@PathVariable("token") final String token, final Update update) throws Exception {
 
         if (!Objects.equals(getBotApiToken(), token)) {
             log.error("Src token [{}] and url path token [{}] are not equals", getBotApiToken(), token);
             return;
         }
+
+        final Resource resource = getApplicationContext().getResource("classpath:com/payway/images/photo.jpg");
+        service.sendPhoto(new SendPhoto(154969762, null, "154969762", "Hello", null), resource);
 
         final BotWebhookTaskHandler handler = getApplicationContext().getBean(BotWebhookTaskHandler.class);
         handler.setUpdate(update);

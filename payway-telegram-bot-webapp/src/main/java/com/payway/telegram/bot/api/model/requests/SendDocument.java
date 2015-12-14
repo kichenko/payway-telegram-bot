@@ -5,7 +5,6 @@ package com.payway.telegram.bot.api.model.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.payway.telegram.bot.api.model.ReplyKeyboard;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,19 +18,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class SendDocument extends AbstractApiRequestObject {
-
-    @JsonProperty("chat_id")
-    private Integer chatId;
+public class SendDocument extends AbstractSendContent {
 
     @JsonProperty("document")
     private String document;
 
-    @JsonProperty("reply_to_message_id")
-    private Integer replayToMessageId;
-
-    @JsonProperty("reply_markup")
-    private ReplyKeyboard replayMarkup;
-
+    public SendDocument(Integer chatId, Integer replayToMessageId, String document, ReplyKeyboard replayMarkup) {
+        super(chatId, replayToMessageId, replayMarkup, SendContentType.Document);
+        this.document = document;
+    }
 }

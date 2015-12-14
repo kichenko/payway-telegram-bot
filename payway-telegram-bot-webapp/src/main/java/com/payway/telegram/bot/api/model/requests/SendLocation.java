@@ -5,7 +5,6 @@ package com.payway.telegram.bot.api.model.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.payway.telegram.bot.api.model.ReplyKeyboard;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,11 +18,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class SendLocation extends AbstractApiRequestObject {
-
-    @JsonProperty("chat_id")
-    private Integer chatId;
+public class SendLocation extends AbstractSendContent {
 
     @JsonProperty("latitude")
     private Float latitude;
@@ -31,10 +26,9 @@ public class SendLocation extends AbstractApiRequestObject {
     @JsonProperty("longitude")
     private Float longitude;
 
-    @JsonProperty("reply_to_message_id")
-    private Integer replayToMessageId;
-
-    @JsonProperty("reply_markup")
-    private ReplyKeyboard replayMarkup;
-
+    public SendLocation(Integer chatId, Integer replayToMessageId, Float latitude, Float longitude, ReplyKeyboard replayMarkup) {
+        super(chatId, replayToMessageId, replayMarkup, SendContentType.Location);
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 }

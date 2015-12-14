@@ -1,7 +1,7 @@
 /*
  * (c) Payway, 2015. All right reserved.
  */
-package com.payway.telegram.bot.api.model;
+package com.payway.telegram.bot.api.model.requests;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 

@@ -20,23 +20,23 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SendAudio extends AbstractApiRequestObject {
-
-    @JsonProperty("chat_id")
-    private Integer chatId;
+public class SendAudio extends AbstractSendContent {
 
     @JsonProperty("audio")
     private String audio;
-
-    @JsonProperty("reply_to_message_id")
-    private Integer replayToMessageId;
-
-    @JsonProperty("reply_markup")
-    private ReplyKeyboard replayMarkup;
 
     @JsonProperty("performer")
     private String performer;
 
     @JsonProperty("title")
     private String title;
+
+    public SendAudio(Integer chatId, Integer replayToMessageId, String audio, String performer, String title, ReplyKeyboard replayMarkup) {
+        super(chatId, replayToMessageId, replayMarkup, SendContentType.Audio);
+        this.audio = audio;
+        this.performer = performer;
+        this.title = title;
+
+    }
+
 }

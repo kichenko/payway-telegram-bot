@@ -20,10 +20,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SendPhoto extends AbstractApiRequestObject {
-
-    @JsonProperty("chat_id")
-    private Integer chatId;
+public class SendPhoto extends AbstractSendContent {
 
     @JsonProperty("photo")
     private String photo;
@@ -31,10 +28,10 @@ public class SendPhoto extends AbstractApiRequestObject {
     @JsonProperty("caption")
     private String caption;
 
-    @JsonProperty("reply_to_message_id")
-    private Integer replayToMessageId;
-
-    @JsonProperty("reply_markup")
-    private ReplyKeyboard replayMarkup;
+    public SendPhoto(Integer chatId, Integer replayToMessageId, String caption, String photo, ReplyKeyboard replayMarkup) {
+        super(chatId, replayToMessageId, replayMarkup, SendContentType.Photo);
+        this.photo = photo;
+        this.caption = caption;
+    }
 
 }

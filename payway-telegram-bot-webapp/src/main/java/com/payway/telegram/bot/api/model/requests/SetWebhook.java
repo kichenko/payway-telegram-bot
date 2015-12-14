@@ -3,27 +3,23 @@
  */
 package com.payway.telegram.bot.api.model.requests;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * SendChatAction
+ * SetWebhook
  *
  * @author Sergey Kichenko
- * @created 11.12.2015
+ * @created 14.12.2015
  */
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SendChatAction extends AbstractApiRequestObject {
+public class SetWebhook extends AbstractApiRequestObject {
 
-    @JsonProperty("chat_id")
-    private Integer chatId;
+    private String url;
 
-    @JsonProperty("action")
-    private ChatActionType action;
 }
