@@ -4,6 +4,7 @@
 package com.payway.telegram.bot.api.model.requests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.payway.telegram.bot.api.model.ChatActionType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,5 +26,5 @@ public class SendChatAction extends AbstractApiRequestObject {
     private Integer chatId;
 
     @JsonProperty("action")
-    private String action;
+    private ChatActionType action;
 }

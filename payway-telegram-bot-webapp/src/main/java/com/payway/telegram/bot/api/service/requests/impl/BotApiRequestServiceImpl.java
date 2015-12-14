@@ -3,13 +3,19 @@
  */
 package com.payway.telegram.bot.api.service.requests.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.payway.telegram.bot.api.model.AbstractApiObject;
+import com.payway.telegram.bot.api.model.ApiResponse;
 import com.payway.telegram.bot.api.model.File;
 import com.payway.telegram.bot.api.model.Message;
 import com.payway.telegram.bot.api.model.Update;
 import com.payway.telegram.bot.api.model.User;
 import com.payway.telegram.bot.api.model.UserProfilePhotos;
+import com.payway.telegram.bot.api.model.requests.AbstractApiRequestObject;
 import com.payway.telegram.bot.api.model.requests.ForwardMessage;
 import com.payway.telegram.bot.api.model.requests.GetFile;
+import com.payway.telegram.bot.api.model.requests.GetMe;
 import com.payway.telegram.bot.api.model.requests.GetUpdates;
 import com.payway.telegram.bot.api.model.requests.GetUserProfilePhotos;
 import com.payway.telegram.bot.api.model.requests.SendAudio;
@@ -23,7 +29,18 @@ import com.payway.telegram.bot.api.model.requests.SendVoice;
 import com.payway.telegram.bot.api.service.requests.BotApiRequestService;
 import com.payway.telegram.bot.api.service.requests.exception.BotApiServiceException;
 import java.util.List;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * BotApiRequestServiceImpl
@@ -31,77 +48,190 @@ import org.springframework.stereotype.Service;
  * @author Sergey Kichenko
  * @created 11.12.2015
  */
+@Getter
 @Service
 public class BotApiRequestServiceImpl implements BotApiRequestService {
 
+    @Value("${app.bot.api.url.method.pattern}")
+    private String apiUrlPattern;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private String getMethodApiUrl(final Class type) {
+        return String.format(getApiUrlPattern(), type.getSimpleName());
+    }
+
+    private <K extends AbstractApiObject, T extends List<K>> T parse(final ApiResponse response, final TypeReference typeReference) throws BotApiServiceException {
+
+        T data = null;
+
+        if (response == null) {
+            throw new BotApiServiceException("Empty response");
+        }
+
+        if (!response.getOk()) {
+            throw new BotApiServiceException(String.format("Invalid response with code=%s, description=%s", response.getErrorCode(), response.getDescription()));
+        }
+
+        try {
+            data = getObjectMapper().readValue(response.getResult(), typeReference);
+        } catch (Exception ex) {
+            throw new BotApiServiceException("Invalid parse result", ex);
+        }
+
+        return data;
+    }
+
+    private <T> T parse(final ApiResponse response, final Class<T> type) throws BotApiServiceException {
+
+        T data = null;
+
+        if (response == null) {
+            throw new BotApiServiceException("Empty response");
+        }
+
+        if (!response.getOk()) {
+            throw new BotApiServiceException(String.format("Invalid response with code=%s, description=%s", response.getErrorCode(), response.getDescription()));
+        }
+
+        try {
+            data = getObjectMapper().readValue(response.getResult(), type);
+        } catch (Exception ex) {
+            throw new BotApiServiceException("Invalid parse result", ex);
+        }
+
+        return data;
+    }
+
+    private <T, R extends AbstractApiRequestObject> T sendRequest(final String url, final R request, final Class<T> type) throws BotApiServiceException {
+
+        T dst = null;
+        try {
+            final ApiResponse rsp = getRestTemplate().postForObject(
+                    url,
+                    request,
+                    ApiResponse.class
+            );
+            dst = parse(rsp, type);
+        } catch (BotApiServiceException basex) {
+            throw basex;
+        } catch (Exception ex) {
+            throw new BotApiServiceException("Internal server error", ex);
+        }
+
+        return dst;
+    }
+
+    private <K extends AbstractApiObject, T extends List<K>, R extends AbstractApiRequestObject> T sendRequest(final String url, final R request, final TypeReference typeReference) throws BotApiServiceException {
+
+        T dst = null;
+        try {
+            final ApiResponse rsp = getRestTemplate().postForObject(
+                    url,
+                    request,
+                    ApiResponse.class
+            );
+            dst = parse(rsp, typeReference);
+        } catch (BotApiServiceException basex) {
+            throw basex;
+        } catch (Exception ex) {
+            throw new BotApiServiceException("Internal server error", ex);
+        }
+
+        return dst;
+    }
+
     @Override
-    public User getMe() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public User getMe() throws BotApiServiceException {
+        return sendRequest(getMethodApiUrl(GetMe.class), null, User.class);
     }
 
     @Override
     public Message sendMessage(SendMessage sendMessage) throws BotApiServiceException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return sendRequest(getMethodApiUrl(SendMessage.class), sendMessage, Message.class);
     }
 
     @Override
     public Message forwardMessage(ForwardMessage forwardMessage) throws BotApiServiceException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Message sendPhoto(SendPhoto sendPhoto) throws BotApiServiceException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Message sendAudio(SendAudio sendAudio) throws BotApiServiceException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Message sendDocument(SendDocument sendDocument) throws BotApiServiceException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Message sendVideo(SendVideo sendVideo) throws BotApiServiceException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Message sendVoice(SendVoice sendVoice) throws BotApiServiceException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return sendRequest(getMethodApiUrl(ForwardMessage.class), forwardMessage, Message.class);
     }
 
     @Override
     public Message sendLocation(SendLocation sendLocation) throws BotApiServiceException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return sendRequest(getMethodApiUrl(SendLocation.class), sendLocation, Message.class);
     }
 
     @Override
-    public void sendChatAction(SendChatAction sendChatAction) throws BotApiServiceException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Boolean sendChatAction(SendChatAction sendChatAction) throws BotApiServiceException {
+        return sendRequest(getMethodApiUrl(SendChatAction.class), sendChatAction, Boolean.class);
     }
 
     @Override
     public UserProfilePhotos getUserProfilePhotos(GetUserProfilePhotos getUserProfilePhotos) throws BotApiServiceException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return sendRequest(getMethodApiUrl(GetUserProfilePhotos.class), getUserProfilePhotos, UserProfilePhotos.class);
     }
 
     @Override
     public File getFile(GetFile getFile) throws BotApiServiceException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return sendRequest(getMethodApiUrl(GetFile.class), getFile, File.class);
     }
 
     @Override
     public List<Update> getUpdates(GetUpdates getUpdates) throws BotApiServiceException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return sendRequest(
+                getMethodApiUrl(GetUpdates.class),
+                getUpdates,
+                new TypeReference<List<Update>>() {
+                });
     }
 
     @Override
     public void setWebhook(String url, File file) throws BotApiServiceException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //
     }
 
+    @Override
+    public Message sendPhoto(SendPhoto sendPhoto, ) throws BotApiServiceException {
+        
+        //ByteArrayResource
+
+        final MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+        parts.add("document", new ByteArrayResource(null));
+
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        final HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(parts, headers);
+
+        return restTemplate.exchange(
+                getMethodApiUrl(GetUpdates.class),
+                HttpMethod.POST,
+                requestEntity,
+                Message.class
+        ).getBody();
+    }
+
+    @Override
+    public Message sendAudio(SendAudio sendAudio) throws BotApiServiceException {
+        return null;
+    }
+
+    @Override
+    public Message sendDocument(SendDocument sendDocument) throws BotApiServiceException {
+        return null;
+    }
+
+    @Override
+    public Message sendVideo(SendVideo sendVideo) throws BotApiServiceException {
+        return null;
+    }
+
+    @Override
+    public Message sendVoice(SendVoice sendVoice) throws BotApiServiceException {
+        return null;
+    }
 }

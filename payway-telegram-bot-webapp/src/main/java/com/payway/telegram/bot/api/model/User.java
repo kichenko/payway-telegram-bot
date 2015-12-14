@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * Update
+ * User
  *
  * @author Sergey Kichenko
  * @created 11.12.2015

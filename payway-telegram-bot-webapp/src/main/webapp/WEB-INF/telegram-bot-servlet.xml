@@ -9,6 +9,46 @@
            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
        ">
         
-    <context:component-scan base-package="com.payway.telegram.bot.web.controller"/>
-    <mvc:annotation-driven/>
+    <context:property-placeholder 
+        location="classpath:telegram-bot.properties,${telegram-bot.conf:file:///etc/telegram-bot.conf}" 
+        ignore-resource-not-found="true"
+    />  
+    
+    <context:component-scan base-package="com.payway.telegram.bot"/>
+        
+    <bean id="objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
+        <property name="serializationInclusion" value="NON_NULL"/>
+    </bean>
+    
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper" ref="objectMapper"/>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+     
+    <!-- Bot webhook task executor -->
+    <bean id="app.BotWebhookTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="daemon" value="true"/>
+        <property name="corePoolSize" value="${app.bot.task.executor.corePoolSize:10}"/>
+        <property name="maxPoolSize" value="${app.bot.task.executor.maxPoolSize:25}"/>
+        <property name="queueCapacity" value="${app.bot.task.executor.queueCapacity:5}"/>
+        <property name="rejectedExecutionHandler">
+            <bean class="java.util.concurrent.ThreadPoolExecutor.AbortPolicy"/>
+        </property>
+    </bean>
+    
+    <bean id="app.RestTemplate" class="org.springframework.web.client.RestTemplate">
+        <property name="messageConverters">
+            <list>
+                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                    <property name="objectMapper" ref="objectMapper"/>
+                </bean>
+            </list>            
+        </property>
+    </bean>
+    
+    <bean id="app.BotWebhookTaskHandler" scope="prototype" class="com.payway.telegram.bot.web.task.handler.BotWebhookTaskHandler"/>
+    
 </beans>

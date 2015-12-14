@@ -31,7 +31,7 @@ import java.util.List;
  */
 public interface BotApiRequestService {
 
-    User getMe();
+    User getMe() throws BotApiServiceException;
 
     Message sendMessage(final SendMessage sendMessage) throws BotApiServiceException;
 
@@ -49,7 +49,7 @@ public interface BotApiRequestService {
 
     Message sendLocation(final SendLocation sendLocation) throws BotApiServiceException;
 
-    void sendChatAction(final SendChatAction sendChatAction) throws BotApiServiceException;
+    Boolean sendChatAction(final SendChatAction sendChatAction) throws BotApiServiceException;
 
     UserProfilePhotos getUserProfilePhotos(final GetUserProfilePhotos getUserProfilePhotos) throws BotApiServiceException;
 

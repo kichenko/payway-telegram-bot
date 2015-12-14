@@ -36,7 +36,6 @@ public class Chat extends AbstractApiObject {
     @JsonProperty("username")
     private String userName;
 
-    public Boolean isGroupChat() {
-        return id < 0;
-    }
+    @JsonProperty("type")
+    private ChatType type;
 }
