@@ -50,6 +50,8 @@
         </property>
     </bean>
     
+    <bean id="app.Sessions" class="java.util.concurrent.ConcurrentHashMap"/>
+    
     <bean id="app.BotWebhookTaskHandler" scope="prototype" class="com.payway.telegram.bot.web.task.handler.BotWebhookTaskHandler"/>
     
 </beans>

@@ -26,12 +26,12 @@ public class SendMessage extends AbstractSendContent {
     private String text;
 
     @JsonProperty("parse_mode")
-    private String parseMode;
+    private ParseMode parseMode;
 
     @JsonProperty("disable_web_page_preview")
     private Boolean disableWebPagePreview;
 
-    public SendMessage(Integer chatId, Integer replayToMessageId, String text, String parseMode, Boolean disableWebPagePreview, ReplyKeyboard replayMarkup) {
+    public SendMessage(Integer chatId, Integer replayToMessageId, String text, ParseMode parseMode, Boolean disableWebPagePreview, ReplyKeyboard replayMarkup) {
         super(chatId, replayToMessageId, replayMarkup, SendContentType.Message);
         this.text = text;
         this.parseMode = parseMode;
