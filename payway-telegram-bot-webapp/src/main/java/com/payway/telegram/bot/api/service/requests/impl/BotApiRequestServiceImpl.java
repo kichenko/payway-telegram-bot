@@ -67,7 +67,7 @@ public class BotApiRequestServiceImpl implements BotApiRequestService {
         return String.format(getApiUrlPattern(), type.getSimpleName());
     }
 
-    private <K extends AbstractApiObject, T extends List<K>> T parse(final ApiResponse response, final TypeReference typeReference) throws BotApiServiceException {
+    private <K extends AbstractApiObject, T extends List<K>> T parse(final ApiResponse response, final TypeReference<T> typeReference) throws BotApiServiceException {
 
         T data = null;
 
@@ -128,7 +128,7 @@ public class BotApiRequestServiceImpl implements BotApiRequestService {
         return dst;
     }
 
-    private <K extends AbstractApiObject, T extends List<K>, R extends AbstractApiRequestObject> T sendRequest(final String url, final R request, final TypeReference typeReference) throws BotApiServiceException {
+    private <K extends AbstractApiObject, T extends List<K>, R extends AbstractApiRequestObject> T sendRequest(final String url, final R request, final TypeReference<T> typeReference) throws BotApiServiceException {
 
         T dst = null;
         try {
